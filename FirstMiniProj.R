@@ -43,3 +43,26 @@ complete <- function(directory, id = 1:332) {
   # return data frame
   complete_cases
 }
+
+corr <- function(directory, threshold = 0) {
+  # ensure that directory ends with `/`
+  directory <- if (endsWith(directory, "/")) directory else paste(directory, "/", sep = "")
+  csvs <- list.files(path = directory)[1:332]  # get csv files from directory
+  correlations <- vector(mode="numeric") # numeric vector that will hold all correlations
+  
+  # loop in each csv from csvs to get data
+  for(csv in csvs) {
+    # get data from csv file
+    csv_data <- read.csv(paste(directory, csv, sep = ""))
+    # remove NA values from csv_data
+    numeric_data <- na.omit(csv_data)
+    # if the complete cases (no NA) is greater that the threshold
+    if(nrow(numeric_data) > threshold) {
+      # calculate correlation between nitrate and sulfate in each monitor
+      # then append that result to `correlations`
+      correlations <- c(correlations, cor(numeric_data$nitrate, numeric_data$sulfate))
+    }
+  }
+  # return correlations
+  correlations
+}
